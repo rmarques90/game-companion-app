@@ -23,6 +23,13 @@
             </select>
         </div>
 
+        <div class="flex flex-row mb-5">
+            <span class="mr-2">User</span>
+            <select v-model="newGameForm.teste">
+                <option v-for="user in availableUsers" :value="user.uid">{{user.displayName}}</option>
+            </select>
+        </div>
+
         <div class="flex flex-row">
             <button @click="submitNewGame">Submit</button>
         </div>
@@ -30,7 +37,7 @@
 </template>
 
 <script>
-import {getCurrentGamesActive, insertNewGame} from "@/firebase";
+import {getAllUsers, getCurrentGamesActive, insertNewGame} from "@/firebase";
 import {Game} from "@/models/Game";
 import {useAuthStore} from "@/stores/auth";
 
@@ -40,10 +47,12 @@ export default {
         return {
             loading: false,
             currentGames: [],
+            availableUsers: [],
             newGameForm: {
                 roomName: null,
                 roomPassword: null,
                 selectedGame: null,
+                players: [],
                 active: true
             }
         }
@@ -54,6 +63,9 @@ export default {
     methods: {
         async loadCurrentGames() {
             this.currentGames = await getCurrentGamesActive();
+            if (!this.availableUsers.length) {
+                this.availableUsers = await getAllUsers();
+            }
         },
         resetNewGame() {
             this.newGameForm = {

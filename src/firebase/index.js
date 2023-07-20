@@ -1,8 +1,9 @@
 import {initializeApp} from 'firebase/app';
-import {collection, getDocs, getFirestore, query, where, doc, addDoc} from "firebase/firestore";
+import {collection, getDocs, getFirestore, query, where, doc, addDoc, setDoc} from "firebase/firestore";
 import {getAuth, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {useAuthStore} from "@/stores/auth";
 import {Game} from "@/models/Game";
+import {User} from "@/models/User";
 
 const config = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -29,13 +30,14 @@ const googleProvider = new GoogleAuthProvider();
 export const makeGoogleAuth = async () => {
     const auth = getAuth();
     await signInWithPopup(auth, googleProvider)
-        .then(result => {
+        .then(async result => {
             // This gives you a Google Access Token. You can use it to access the Google API.
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential.accessToken;
             // The signed-in user info.
             const user = result.user;
             // IdP data available using getAdditionalUserInfo(result)
+            await insertUpdateUserOnFirebase(new User(user));
             useAuthStore().$patch({
                 token: token,
                 user: user
@@ -69,11 +71,9 @@ export const getCurrentGamesActive = async () => {
     const q = query(currentGamesRef, where("active", "==", true)).withConverter(gameConverter);
     let resp = await getDocs(q);
     let dataToReturn = [];
-    console.log('resp', resp);
     resp.forEach((doc) => {
         dataToReturn.push(doc.data());
     })
-    console.log('dataToReturn', dataToReturn);
     return dataToReturn;
 }
 
@@ -102,4 +102,36 @@ export const insertNewGame = async (game) => {
     } catch (e) {
         throw Error(e);
     }
+}
+
+const userConverter = {
+    toFirestore: (user) => {
+        let objToReturn = {};
+        Object.entries(user).forEach(([key, value]) => {
+            if (value != undefined) {
+                objToReturn[key] = value;
+            }
+        });
+
+        return objToReturn;
+    },
+    fromFirestore: (snapshot, options) => {
+        const data = snapshot.data(options);
+        return new User(data);
+    }
+};
+
+const insertUpdateUserOnFirebase = (user) => {
+    // const userRef = doc(db, 'users', user.uid).withConverter(userConverter);
+    return setDoc(doc(db, 'users', user.uid), userConverter.toFirestore(user), {merge: true});
+}
+
+export const getAllUsers = async () => {
+    const usersRef = collection(db, "users").withConverter(userConverter);
+    let resp = await getDocs(usersRef);
+    let dataToReturn = [];
+    resp.forEach((doc) => {
+        dataToReturn.push(doc.data());
+    })
+    return dataToReturn;
 }
