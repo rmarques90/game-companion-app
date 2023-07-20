@@ -1,4 +1,3 @@
-import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -30,6 +29,8 @@ router.beforeEach((to, from, next) => {
 })
 
 firebaseSetup();
+
+import './index.css';
 
 const app = createApp(App)
 

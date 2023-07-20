@@ -1,15 +1,16 @@
 <template>
-    <div>
-        Teste do login
-        <button @click="doLogin">Fazer login com google</button>
+    <div class="absolute inset-0">
+        <ButtonLoginWithGoogle @click="doLogin"></ButtonLoginWithGoogle>
     </div>
 </template>
 
 <script>
 import {makeGoogleAuth} from "@/firebase";
+import ButtonLoginWithGoogle from "@/components/Buttons/ButtonLoginWithGoogle.vue";
 
 export default {
     name: "Login",
+    components: {ButtonLoginWithGoogle},
     methods: {
         async doLogin() {
             await makeGoogleAuth();
