@@ -3,19 +3,18 @@
     <div @click="goToGame(currentGame)" class="mt-2 mb-2 border-2" v-for="currentGame in currentGames">
         <span>Room Name: {{currentGame.roomName}} -- Game: <GameShow :game-id="currentGame.selectedGame"></GameShow> </span>
     </div>
-<!--    -->
 
     <button @click="addNewGame">Add new game</button>
 
-    <NewGameModal v-if="showModalNewGame" @close="showModalNewGame = false"></NewGameModal>
+    <NewGameModal v-if="showModalNewGame" @close="onCloseAddedNewGame"></NewGameModal>
 </template>
 
 <script>
 import {getCurrentGamesActive} from "@/firebase";
 import GamesSelect from "@/components/GamesSelect.vue";
 import GameShow from "@/components/GameShow.vue";
-import Modal from "@/components/Modal.vue";
-import NewGameModal from "@/components/NewGameModal.vue";
+import Modal from "@/components/Modals/Modal.vue";
+import NewGameModal from "@/components/Modals/NewGameModal.vue";
 
 export default {
     name: "CurrentGames",
@@ -40,6 +39,10 @@ export default {
         },
         addNewGame() {
             this.showModalNewGame = true;
+        },
+        onCloseAddedNewGame() {
+            this.showModalNewGame = false;
+            this.loadCurrentGames();
         }
     }
 }

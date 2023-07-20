@@ -44,7 +44,7 @@
 </template>
 <script>
 import GamesSelect from "@/components/GamesSelect.vue";
-import Modal from "@/components/Modal.vue";
+import Modal from "@/components/Modals/Modal.vue";
 import {getAllUsers, insertNewGame} from "@/firebase";
 import {Game} from "@/models/Game";
 import {useAuthStore} from "@/stores/auth";
@@ -67,7 +67,8 @@ export default {
             showModalNewGame: false
         }
     },
-    beforeMount() {
+    async beforeMount() {
+        await this.loadAllUsers();
         this.showModalNewGame = true
     },
     methods: {

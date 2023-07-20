@@ -1,6 +1,10 @@
 <template>
     Game Room!
 
+    <div v-if="loading">
+        Loading...
+    </div>
+
     <div class="flex flex-col" v-if="currentGame">
         <span>players!</span>
         <div class="flex flex-col">
@@ -32,9 +36,11 @@ export default {
             availableUsers: []
         }
     },
-    mounted() {
-        this.loadCurrentGame();
-        this.loadAllUsers();
+    async mounted() {
+        this.loading = true;
+        await this.loadAllUsers();
+        await this.loadCurrentGame();
+        this.loading = false;
     },
     methods: {
         async loadAllUsers() {
@@ -49,10 +55,6 @@ export default {
             }
         },
         async loadCurrentGame() {
-            if (this.loading) {
-                return;
-            }
-
             try {
                 this.loading = true;
                 this.currentGame = await getSingleGame(this.id);
