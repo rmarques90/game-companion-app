@@ -16,16 +16,8 @@
         </div>
 
         <div class="flex flex-row mb-5">
-            <span class="mr-2">Game type</span>
-            <select v-model="newGameForm.selectedGame">
-                <option value="bang">Bang!</option>
-                <option value="king-of-tokyo">KoT!</option>
-            </select>
-        </div>
-
-        <div class="flex flex-row mb-5">
             <span class="mr-2">User</span>
-            <select v-model="newGameForm.teste">
+            <select multiple v-model="newGameForm.players">
                 <option v-for="user in availableUsers" :value="user.uid">{{user.displayName}}</option>
             </select>
         </div>
@@ -51,7 +43,7 @@ export default {
             newGameForm: {
                 roomName: null,
                 roomPassword: null,
-                selectedGame: null,
+                selectedGame: 'king-of-tokyo',
                 players: [],
                 active: true
             }

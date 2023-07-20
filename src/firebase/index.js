@@ -1,5 +1,5 @@
 import {initializeApp} from 'firebase/app';
-import {collection, getDocs, getFirestore, query, where, doc, addDoc, setDoc} from "firebase/firestore";
+import {collection, getDocs, getFirestore, query, where, doc, addDoc, setDoc, getDoc, or, and} from "firebase/firestore";
 import {getAuth, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {useAuthStore} from "@/stores/auth";
 import {Game} from "@/models/Game";
@@ -133,5 +133,23 @@ export const getAllUsers = async () => {
     resp.forEach((doc) => {
         dataToReturn.push(doc.data());
     })
+    return dataToReturn;
+}
+
+export const getSingleGame = async (gameId) => {
+    const gameRef = doc(db, 'games', gameId).withConverter(gameConverter);
+    return await getDoc(gameRef);
+}
+
+export const getActiveGamesForUser = async (userId) => {
+    const currentGamesRef = collection(db, "games");
+    const q = query(currentGamesRef, and(where("active", "==", true), or(where("players.uid", "in", [userId]), where("ownerId", '==', userId)))).withConverter(gameConverter);
+    let resp = await getDocs(q);
+    let dataToReturn = [];
+    console.log('resp', resp);
+    resp.forEach((doc) => {
+        dataToReturn.push(doc.data());
+    })
+    console.log('dataToReturn', dataToReturn);
     return dataToReturn;
 }
