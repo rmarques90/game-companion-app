@@ -4,7 +4,7 @@
             <span class="text-white">olá, {{AuthStore.user?.displayName}}</span>
         </div>
         <div class="flex">
-            <img class="rounded-full w-8 h-8" :src="AuthStore.user?.photoURL"/>
+            <img class="rounded-full w-8 h-8" :src="AuthStore.user?.photoURL" @click="onNavbarActionClicked('logout')"/>
         </div>
     </div>
     <div class="h-full w-full">

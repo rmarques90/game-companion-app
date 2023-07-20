@@ -1,6 +1,8 @@
 import {initializeApp} from 'firebase/app';
-import {GoogleAuthProvider, getAuth, signInWithPopup} from "firebase/auth";
+import {collection, getDocs, getFirestore, query, where, doc, addDoc} from "firebase/firestore";
+import {getAuth, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {useAuthStore} from "@/stores/auth";
+import {Game} from "@/models/Game";
 
 const config = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -12,8 +14,15 @@ const config = {
     measurementId: import.meta.env.VITE_MEASUREMENT_ID
 };
 
+let db = null;
+let app = null;
 export const setup = () => {
-    initializeApp(config);
+    if (!app) {
+        app = initializeApp(config);
+    }
+    if (!db) {
+        db = getFirestore(app);
+    }
 }
 
 const googleProvider = new GoogleAuthProvider();
@@ -53,4 +62,44 @@ export const logoutGoogle = async () => {
         // An error happened.
         console.error("error logging out", error);
     });
+}
+
+export const getCurrentGamesActive = async () => {
+    const currentGamesRef = collection(db, "games");
+    const q = query(currentGamesRef, where("active", "==", true)).withConverter(gameConverter);
+    let resp = await getDocs(q);
+    let dataToReturn = [];
+    console.log('resp', resp);
+    resp.forEach((doc) => {
+        dataToReturn.push(doc.data());
+    })
+    console.log('dataToReturn', dataToReturn);
+    return dataToReturn;
+}
+
+const gameConverter = {
+    toFirestore: (game) => {
+        let objToReturn = {};
+        Object.entries(game).forEach(([key, value]) => {
+            if (value != undefined) {
+                objToReturn[key] = value;
+            }
+        });
+
+        return objToReturn;
+    },
+    fromFirestore: (snapshot, options) => {
+        const data = snapshot.data(options);
+        return new Game(data);
+    }
+};
+
+export const insertNewGame = async (game) => {
+    try {
+        // const gameRef = doc(db, 'games').withConverter(gameConverter);
+        let docToInsert = gameConverter.toFirestore(game);
+        await addDoc(collection(db, 'games'), docToInsert);
+    } catch (e) {
+        throw Error(e);
+    }
 }
