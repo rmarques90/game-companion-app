@@ -1,4 +1,5 @@
 export class Game {
+    id;
     roomName;
     roomPassword;
     selectedGame;
@@ -7,8 +8,10 @@ export class Game {
     createdAt;
     updatedAt;
     ownerId;
+    scheduledFor;
 
-    constructor({ roomName, roomPassword, selectedGame, players, active, createdAt, updatedAt, ownerId}) {
+    constructor({ id, roomName, roomPassword, selectedGame, players, active, createdAt, updatedAt, ownerId, scheduledFor }) {
+        this.id = id;
         this.roomName = roomName;
         this.roomPassword = roomPassword;
         this.selectedGame = selectedGame;
@@ -17,5 +20,6 @@ export class Game {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.ownerId = ownerId;
+        this.scheduledFor = scheduledFor;
     }
 }

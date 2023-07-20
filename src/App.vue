@@ -8,9 +8,6 @@
                 <img class="rounded-full w-8 h-8" :src="AuthStore.user?.photoURL" @click="onNavbarActionClicked('logout')"/>
             </div>
         </div>
-
-        <CurrentUserActiveGames :user="AuthStore.user" />
-
     </div>
     <div class="h-full w-full">
         <router-view/>

@@ -90,7 +90,9 @@ const gameConverter = {
     },
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        return new Game(data);
+        let game = new Game(data);
+        game.id = snapshot.id;
+        return game;
     }
 };
 
@@ -138,18 +140,17 @@ export const getAllUsers = async () => {
 
 export const getSingleGame = async (gameId) => {
     const gameRef = doc(db, 'games', gameId).withConverter(gameConverter);
-    return await getDoc(gameRef);
+    let document = await getDoc(gameRef);
+    return document.data();
 }
 
 export const getActiveGamesForUser = async (userId) => {
     const currentGamesRef = collection(db, "games");
-    const q = query(currentGamesRef, and(where("active", "==", true), or(where("players.uid", "in", [userId]), where("ownerId", '==', userId)))).withConverter(gameConverter);
+    const q = query(currentGamesRef, and(where("active", "==", true), or(where("players", "array-contains-any", [userId]), where("ownerId", '==', userId)))).withConverter(gameConverter);
     let resp = await getDocs(q);
     let dataToReturn = [];
-    console.log('resp', resp);
     resp.forEach((doc) => {
         dataToReturn.push(doc.data());
     })
-    console.log('dataToReturn', dataToReturn);
     return dataToReturn;
 }
